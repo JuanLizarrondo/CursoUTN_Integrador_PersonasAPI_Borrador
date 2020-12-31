@@ -111,6 +111,52 @@ app.get('/', function (req, res, next) {
     });
 });
 
+/*PUT '/persona/:id' recibe: {nombre: string, apellido: string, alias: string, email: string} el email no se puede modificar. retorna status 200 y el objeto modificado o bien status 413, {mensaje: <descripcion del error>} "error inesperado", "no se encuentra esa persona"*/ 
+
+app.put('/persona/:id', async (req, res) {
+    try{
+        
+    if (!req.body.nombre & !req.body.apellido & !req.body.email & !req.body.alias) {
+        throw new Error("No hay datos que actualizar");
+    }
+    let existe = qy(query, [req.params.id])
+
+    if (existe.id = null){
+        throw new Error("Esa Persona no existe");
+    }
+
+    let respuesta = qy(query, [req.body]);
+
+    var query = 'UPDATE persona SET ( nombre = ?, apellido = ?, email = ?, alias = ?) WHERE id = ?'
+
+    respuesta = await qy((query, [req.body.nombre.toUpperCase(), req.body.apellido.toUpperCase(), req.body.email.toUpperCase(), req.body.alias.toUpperCase(),req.params.id]));
+
+    } catch (e) {
+        console.error(e.message);
+        res.status(413).send({"Error": e.message});  
+    }
+    
+});  
+
+/*DELETE '/persona/:id' retorna: 200 y {mensaje: "se borro correctamente"} o bien 413, {mensaje: <descripcion del error>} "error inesperado", "no existe esa persona", "esa persona tiene libros asociados, no se puede eliminar" */
+app.delete('/persona/:id'), async (req, res) {
+    try {
+        let existe = qy(query, [req.params.id])
+        if (existe.id = null){
+            throw new Error("Esa Persona no existe");
+        }
+
+        let respuesta = qy(query, [req.params.id]);
+        var query = 'DELETE FROM persona WHERE id = ?'
+        respuesta = qy((query, [req.params.id]));
+
+        res.send({"respuesta": respuesta});
+    } catch (e) {
+        console.error(e.message);
+        res.status(413).send({"Error": e.message}); 
+    }
+}
+
 // Obtener un artista
 app.get('/:id', function (req, res, next) {
     var idArtista = req.params.id;
